@@ -39,7 +39,7 @@ func (c *RPCContext) Handle(v interface{}, cb func() interface{}) interface{} {
 
 // RPCHandler wraps a handler to simplify handling request and responses. The
 // specified limit will be applied to the received request body.
-func RPCHandler(limit int64, handler func(*RPCContext) interface{}) http.HandlerFunc {
+func RPCHandler(limit uint64, handler func(*RPCContext) interface{}) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// limit body
 		LimitBody(w, r, limit)
