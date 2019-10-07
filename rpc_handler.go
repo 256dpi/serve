@@ -42,6 +42,15 @@ func (c *RPCContext) Handle(v interface{}, cb func() interface{}) interface{} {
 // expected to return nil, JSON compatible responses, RPCError values or errors.
 func RPCHandler(limit uint64, reporter func(error), handler func(*RPCContext) interface{}) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// check request method
+		if r.Method != "POST" {
+			rpcErr := RPCErrorFromStatus(http.StatusMethodNotAllowed, "")
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(rpcErr.Status)
+			_ = json.NewEncoder(w).Encode(rpcErr)
+			return
+		}
+
 		// limit body
 		LimitBody(w, r, limit)
 

@@ -109,4 +109,13 @@ func TestRPC(t *testing.T) {
 		Source: "param.foo",
 	}, err)
 	assert.NoError(t, repErr)
+
+	/* invalid method */
+
+	r := Record(mux, "GET", "/data", nil, "")
+	assert.Equal(t, http.StatusMethodNotAllowed, r.Code)
+	assert.JSONEq(t, `{
+		"status": "405",
+		"title": "method not allowed"
+	}`, r.Body.String())
 }
