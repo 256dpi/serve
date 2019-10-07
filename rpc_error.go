@@ -68,7 +68,7 @@ func RPCNotFound(detail string) *RPCError {
 	return RPCErrorFromStatus(http.StatusNotFound, detail)
 }
 
-// BadRequestPointer returns a new bad request error with a source.
+// RPCBadRequest returns a new bad request error with a source.
 func RPCBadRequest(detail, source string) *RPCError {
 	err := RPCErrorFromStatus(http.StatusBadRequest, detail)
 	err.Source = source

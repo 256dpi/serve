@@ -16,7 +16,7 @@ func (c *RPCContext) Request() *http.Request {
 	return c.r
 }
 
-// Response will return the associated response writer.
+// ResponseWriter will return the associated response writer.
 func (c *RPCContext) ResponseWriter() http.ResponseWriter {
 	return c.w
 }
