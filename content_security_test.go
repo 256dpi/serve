@@ -18,7 +18,7 @@ func TestContentSecurity(t *testing.T) {
 		}),
 	)
 
-	r := testRequest(csp, "GET", "https://example.com", nil, "")
+	r := Record(csp, "GET", "https://example.com", nil, "")
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "Hello", r.Body.String())
 	assert.Equal(t, http.Header{
