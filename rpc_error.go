@@ -75,8 +75,3 @@ func RPCBadRequest(detail, source string) *RPCError {
 
 	return err
 }
-
-// RPCInternalServerError returns na new internal server error.
-func RPCInternalServerError(detail string) *RPCError {
-	return RPCErrorFromStatus(http.StatusInternalServerError, detail)
-}

@@ -28,7 +28,7 @@ func TestRPC(t *testing.T) {
 
 	/* nil response */
 
-	mux.Handle("/nil", RPCHandler(0, func(ctx *RPCContext) interface{} {
+	mux.Handle("/nil", RPCHandler(0, nil, func(ctx *RPCContext) interface{} {
 		return nil
 	}))
 
@@ -39,7 +39,7 @@ func TestRPC(t *testing.T) {
 
 	/* arbitrary data */
 
-	mux.Handle("/data", RPCHandler(0, func(ctx *RPCContext) interface{} {
+	mux.Handle("/data", RPCHandler(0, nil, func(ctx *RPCContext) interface{} {
 		return RPCData{"foo": 42}
 	}))
 
@@ -49,7 +49,7 @@ func TestRPC(t *testing.T) {
 
 	/* basic types */
 
-	mux.Handle("/int", RPCHandler(0, func(ctx *RPCContext) interface{} {
+	mux.Handle("/int", RPCHandler(0, nil, func(ctx *RPCContext) interface{} {
 		return 42
 	}))
 
@@ -64,7 +64,7 @@ func TestRPC(t *testing.T) {
 		Name string `json:"foo"`
 	}
 
-	mux.Handle("/item", RPCHandler(100, func(ctx *RPCContext) interface{} {
+	mux.Handle("/item", RPCHandler(100, nil, func(ctx *RPCContext) interface{} {
 		var item Item
 		return ctx.Handle(&item, func() interface{} {
 			return Item{Name: strings.ToUpper(item.Name)}
@@ -78,7 +78,10 @@ func TestRPC(t *testing.T) {
 
 	/* raw errors */
 
-	mux.Handle("/fail", RPCHandler(0, func(ctx *RPCContext) interface{} {
+	var repErr error
+	mux.Handle("/fail", RPCHandler(0, func(err error) {
+		repErr = err
+	}, func(ctx *RPCContext) interface{} {
 		return fmt.Errorf("some error")
 	}))
 
@@ -86,12 +89,15 @@ func TestRPC(t *testing.T) {
 	assert.Equal(t, &RPCError{
 		Status: 500,
 		Title:  "internal server error",
-		Detail: "unknown error",
 	}, err)
+	assert.Equal(t, "some error", repErr.Error())
 
 	/* extended errors */
 
-	mux.Handle("/err", RPCHandler(0, func(ctx *RPCContext) interface{} {
+	repErr = nil
+	mux.Handle("/err", RPCHandler(0, func(err error) {
+		repErr = err
+	}, func(ctx *RPCContext) interface{} {
 		return RPCBadRequest("just bad", "param.foo")
 	}))
 
@@ -102,4 +108,5 @@ func TestRPC(t *testing.T) {
 		Detail: "just bad",
 		Source: "param.foo",
 	}, err)
+	assert.NoError(t, repErr)
 }

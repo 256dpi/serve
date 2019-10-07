@@ -38,23 +38,38 @@ func (c *RPCContext) Handle(v interface{}, cb func() interface{}) interface{} {
 }
 
 // RPCHandler wraps a handler to simplify handling request and responses. The
-// specified limit will be applied to the received request body.
-func RPCHandler(limit uint64, handler func(*RPCContext) interface{}) http.HandlerFunc {
+// specified limit will be applied to the received request body. The handler is
+// expected to return nil, JSON compatible responses, RPCError values or errors.
+func RPCHandler(limit uint64, reporter func(error), handler func(*RPCContext) interface{}) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// limit body
 		LimitBody(w, r, limit)
 
 		// run handler
 		res := handler(&RPCContext{r: r, w: w})
+
+		// handle errors
 		if err, ok := res.(error); ok {
 			// check error
 			rpcError, ok := err.(*RPCError)
 			if !ok {
-				rpcError = RPCInternalServerError("unknown error")
+				// report critical errors
+				if reporter != nil {
+					reporter(err)
+				}
+
+				// make rpc error
+				rpcError = RPCErrorFromStatus(http.StatusInternalServerError, "")
 			}
 
 			// set status
 			if http.StatusText(rpcError.Status) == "" {
+				// report invalid errors
+				if reporter != nil {
+					reporter(rpcError)
+				}
+
+				// set fallback status
 				rpcError.Status = http.StatusInternalServerError
 			}
 
