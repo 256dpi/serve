@@ -1,6 +1,7 @@
 package serve
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -74,4 +75,11 @@ func RPCBadRequest(detail, source string) *RPCError {
 	err.Source = source
 
 	return err
+}
+
+// RPCErrorWrite will write the error to the specified response writer.
+func RPCErrorWrite(w http.ResponseWriter, err *RPCError) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(err.Status)
+	_ = json.NewEncoder(w).Encode(err)
 }

@@ -44,10 +44,7 @@ func RPCHandler(limit uint64, reporter func(error), handler func(*RPCContext) in
 	return func(w http.ResponseWriter, r *http.Request) {
 		// check request method
 		if r.Method != "POST" {
-			rpcErr := RPCErrorFromStatus(http.StatusMethodNotAllowed, "")
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(rpcErr.Status)
-			_ = json.NewEncoder(w).Encode(rpcErr)
+			RPCErrorWrite(w, RPCErrorFromStatus(http.StatusMethodNotAllowed, ""))
 			return
 		}
 
@@ -82,12 +79,8 @@ func RPCHandler(limit uint64, reporter func(error), handler func(*RPCContext) in
 				rpcError.Status = http.StatusInternalServerError
 			}
 
-			// write header
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(rpcError.Status)
-
 			// write error
-			_ = json.NewEncoder(w).Encode(rpcError)
+			RPCErrorWrite(w, rpcError)
 
 			return
 		}
