@@ -1,6 +1,7 @@
 package serve
 
 import (
+	"io"
 	"io/ioutil"
 	"net/http/httptest"
 	"strings"
@@ -8,6 +9,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 )
+
+var _ io.ReadCloser = &BodyLimiter{}
 
 func TestLimitBody(t *testing.T) {
 	r := httptest.NewRequest("GET", "http://example.org", strings.NewReader("hello world"))
@@ -24,6 +27,7 @@ func TestLimitBody(t *testing.T) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	assert.Error(t, err)
 	assert.Equal(t, "hello", string(bytes))
+	assert.Equal(t, err, ErrBodyLimitExceeded)
 }
 
 func TestDataSize(t *testing.T) {
