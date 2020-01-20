@@ -12,6 +12,7 @@ var ErrBodyLimitExceeded = errors.New("body limit exceeded")
 
 // BodyLimiter wraps a io.ReadCloser and keeps a reference to the original.
 type BodyLimiter struct {
+	Length   int64
 	Limit    uint64
 	Original io.ReadCloser
 	Limited  io.ReadCloser
@@ -22,21 +23,27 @@ type BodyLimiter struct {
 // which essentially allows callers to increase the limit from a default limit
 // later in the request processing.
 func LimitBody(w http.ResponseWriter, r *http.Request, limit uint64) {
-	// get original body from existing limiter
+	// recover original body from existing limiter
 	if bl, ok := r.Body.(*BodyLimiter); ok {
 		r.Body = bl.Original
 	}
 
-	// set new limiter
+	// set limited body
 	r.Body = &BodyLimiter{
-		Original: r.Body,
+		Length:   r.ContentLength,
 		Limit:    limit,
+		Original: r.Body,
 		Limited:  http.MaxBytesReader(w, r.Body, int64(limit)),
 	}
 }
 
 // Read will read from the underlying io.Reader.
 func (l *BodyLimiter) Read(p []byte) (int, error) {
+	// immediately return error if length is beyond limit
+	if l.Length >= 0 && uint64(l.Length) > l.Limit {
+		return 0, ErrBodyLimitExceeded
+	}
+
 	// read and rewrite error
 	n, err := l.Limited.Read(p)
 	if err != nil && err.Error() == "http: request body too large" {

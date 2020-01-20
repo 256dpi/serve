@@ -12,21 +12,42 @@ import (
 
 var _ io.ReadCloser = &BodyLimiter{}
 
-func TestLimitBody(t *testing.T) {
-	r := httptest.NewRequest("GET", "http://example.org", strings.NewReader("hello world"))
-	w := httptest.NewRecorder()
+func TestLimitBodyExtend(t *testing.T) {
+	r := httptest.NewRequest("GET", "http://example.org", strings.NewReader("Hello World!"))
 
 	orig := r.Body
 
-	LimitBody(w, r, 2)
+	LimitBody(nil, r, 2)
 	assert.Equal(t, orig, r.Body.(*BodyLimiter).Original)
 
-	LimitBody(w, r, 5)
+	LimitBody(nil, r, 16)
 	assert.Equal(t, orig, r.Body.(*BodyLimiter).Original)
 
 	bytes, err := ioutil.ReadAll(r.Body)
+	assert.NoError(t, err)
+	assert.Equal(t, "Hello World!", string(bytes))
+}
+
+func TestLimitBodyBeforeReading(t *testing.T) {
+	r := httptest.NewRequest("GET", "http://example.org", strings.NewReader("Hello World!"))
+
+	LimitBody(nil, r, 5)
+
+	bytes, err := ioutil.ReadAll(r.Body)
 	assert.Error(t, err)
-	assert.Equal(t, "hello", string(bytes))
+	assert.Equal(t, "", string(bytes))
+	assert.Equal(t, err, ErrBodyLimitExceeded)
+}
+
+func TestLimitBodyWhileReading(t *testing.T) {
+	r := httptest.NewRequest("GET", "http://example.org", strings.NewReader("Hello World!"))
+	r.ContentLength = -1
+
+	LimitBody(nil, r, 5)
+
+	bytes, err := ioutil.ReadAll(r.Body)
+	assert.Error(t, err)
+	assert.Equal(t, "Hello", string(bytes))
 	assert.Equal(t, err, ErrBodyLimitExceeded)
 }
 
