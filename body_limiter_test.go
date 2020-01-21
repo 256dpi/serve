@@ -50,15 +50,3 @@ func TestLimitBodyWhileReading(t *testing.T) {
 	assert.Equal(t, "Hello", string(bytes))
 	assert.Equal(t, err, ErrBodyLimitExceeded)
 }
-
-func TestDataSize(t *testing.T) {
-	assert.Equal(t, uint64(50*1000), DataSize("50K"))
-	assert.Equal(t, uint64(5*1000*1000), DataSize("5M"))
-	assert.Equal(t, uint64(100*1000*1000*1000), DataSize("100G"))
-
-	for _, str := range []string{"", "1", "K", "10", "KM"} {
-		assert.PanicsWithValue(t, `fire: data size must be like 4K, 20M or 5G`, func() {
-			DataSize(str)
-		})
-	}
-}
