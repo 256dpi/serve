@@ -53,7 +53,6 @@ func TestSecurityAllowInsecure(t *testing.T) {
 		"Content-Security-Policy":   []string{"default-src 'none'"},
 		"Content-Type":              []string{"text/plain; charset=utf-8"},
 		"Referrer-Policy":           []string{"no-referrer-when-downgrade"},
-		"Strict-Transport-Security": []string{"max-age=604800"},
 		"X-Content-Type-Options":    []string{"nosniff"},
 		"X-Frame-Options":           []string{"DENY"},
 		"X-Xss-Protection":          []string{"1; mode=block"},

@@ -47,7 +47,7 @@ func Secure(w http.ResponseWriter, r *http.Request, allowInsecure, noFrontend bo
 	}
 
 	// set strict transport max age if specified
-	if stsMaxAge > 0 {
+	if stsMaxAge > 0 && !allowInsecure {
 		w.Header().Set("Strict-Transport-Security", "max-age="+strconv.Itoa(int(stsMaxAge/time.Second)))
 	}
 
