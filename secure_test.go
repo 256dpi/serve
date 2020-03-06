@@ -50,12 +50,12 @@ func TestSecurityAllowInsecure(t *testing.T) {
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "Hello", r.Body.String())
 	assert.Equal(t, http.Header{
-		"Content-Security-Policy":   []string{"default-src 'none'"},
-		"Content-Type":              []string{"text/plain; charset=utf-8"},
-		"Referrer-Policy":           []string{"no-referrer-when-downgrade"},
-		"X-Content-Type-Options":    []string{"nosniff"},
-		"X-Frame-Options":           []string{"DENY"},
-		"X-Xss-Protection":          []string{"1; mode=block"},
+		"Content-Security-Policy": []string{"default-src 'none'"},
+		"Content-Type":            []string{"text/plain; charset=utf-8"},
+		"Referrer-Policy":         []string{"no-referrer-when-downgrade"},
+		"X-Content-Type-Options":  []string{"nosniff"},
+		"X-Frame-Options":         []string{"DENY"},
+		"X-Xss-Protection":        []string{"1; mode=block"},
 	}, r.Header())
 }
 
