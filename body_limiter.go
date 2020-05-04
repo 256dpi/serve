@@ -9,12 +9,17 @@ import (
 // ErrBodyLimitExceeded is returned if a body is read beyond the set limit.
 var ErrBodyLimitExceeded = errors.New("body limit exceeded")
 
-// BodyLimiter wraps a io.ReadCloser and keeps a reference to the original.
-type BodyLimiter struct {
-	Length   int64
-	Limit    int64
-	Original io.ReadCloser
-	Limited  io.ReadCloser
+// Limit will return a middleware that ensures a limited body.
+func Limit(limit int64) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// limit body
+			LimitBody(w, r, limit)
+
+			// call next
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 // LimitBody will limit reading from the body of the supplied request to the
@@ -34,6 +39,14 @@ func LimitBody(w http.ResponseWriter, r *http.Request, limit int64) {
 		Original: r.Body,
 		Limited:  http.MaxBytesReader(w, r.Body, limit),
 	}
+}
+
+// BodyLimiter wraps a io.ReadCloser and keeps a reference to the original.
+type BodyLimiter struct {
+	Length   int64
+	Limit    int64
+	Original io.ReadCloser
+	Limited  io.ReadCloser
 }
 
 // Read will read from the underlying io.Reader.

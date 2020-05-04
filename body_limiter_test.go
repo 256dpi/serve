@@ -3,6 +3,7 @@ package serve
 import (
 	"io"
 	"io/ioutil"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -11,6 +12,24 @@ import (
 )
 
 var _ io.ReadCloser = &BodyLimiter{}
+
+func TestLimit(t *testing.T) {
+	handler := Compose(
+		Limit(10),
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			_, err := ioutil.ReadAll(r.Body)
+			if err == ErrBodyLimitExceeded {
+				w.WriteHeader(http.StatusRequestEntityTooLarge)
+			}
+		}),
+	)
+
+	res := Record(handler, "GET", "/", nil, "Hello!")
+	assert.Equal(t, http.StatusOK, res.Code)
+
+	res = Record(handler, "GET", "/", nil, "Hello World!")
+	assert.Equal(t, http.StatusRequestEntityTooLarge, res.Code)
+}
 
 func TestLimitBodyExtend(t *testing.T) {
 	r := httptest.NewRequest("GET", "http://example.org", strings.NewReader("Hello World!"))
