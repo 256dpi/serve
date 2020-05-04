@@ -2,13 +2,15 @@ package serve
 
 import "net/http"
 
-// Throttle return a middleware that limits incoming to N parallel requests.
-func Throttle(n int) func(http.Handler) http.Handler {
+// Throttle returns a middleware that limits concurrent requests. The middleware
+// will block the request and wait for a token. If the context is cancelled
+// beforehand, "Too Many Requests" is returned.
+func Throttle(concurrency int) func(http.Handler) http.Handler {
 	// create bucket
-	bucket := make(chan struct{}, n)
+	bucket := make(chan struct{}, concurrency)
 
 	// fill bucket
-	for i := 0; i < n; i++ {
+	for i := 0; i < concurrency; i++ {
 		bucket <- struct{}{}
 	}
 
