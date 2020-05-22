@@ -29,3 +29,27 @@ func TestHostname(t *testing.T) {
 		assert.Equal(t, item.o, Hostname(item.i))
 	}
 }
+
+func TestIP(t *testing.T) {
+	matrix := []struct {
+		i string
+		o string
+	}{
+		{
+			i: "1.1.1.1:80",
+			o: "1.1.1.1",
+		},
+		{
+			i: "1.1.1.1",
+			o: "1.1.1.1",
+		},
+		{
+			i: ":80",
+			o: "",
+		},
+	}
+
+	for _, item := range matrix {
+		assert.Equal(t, item.o, IP(item.i))
+	}
+}
