@@ -6,6 +6,9 @@ import (
 	"net/http"
 )
 
+// TODO: Support multiple values and "Forwarded" header?
+//  => https://github.com/gorilla/handlers/blob/master/proxy_headers.go
+
 // Forwarded is a middleware that will parse "X-Forwarded-X" headers and mutate
 // the request to reflect the conditions described by the headers.
 //
@@ -25,8 +28,12 @@ func Forwarded() func(http.Handler) http.Handler {
 				r.RemoteAddr = net.JoinHostPort(ip, port)
 			}
 
-			// set fake tls state if https
+			// fake tls if scheme is https
 			if r.TLS == nil && proto == "https" {
+				// set url scheme
+				r.URL.Scheme = "https"
+
+				// set fake tls state
 				r.TLS = &tls.ConnectionState{
 					Version:           tls.VersionTLS13,
 					HandshakeComplete: true,
