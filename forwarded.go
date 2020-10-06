@@ -4,32 +4,58 @@ import (
 	"crypto/tls"
 	"net"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
-// TODO: Support multiple values and "Forwarded" header?
+// TODO: Support new "Forwarded" header?
 //  => https://github.com/gorilla/handlers/blob/master/proxy_headers.go
 
-// Forwarded is a middleware that will parse "X-Forwarded-X" headers and mutate
-// the request to reflect the conditions described by the headers.
+// Forwarded is a middleware that will parse the selected "X-Forwarded-X" headers
+// and mutate the request to reflect the conditions described by the headers.
 //
 // Note: This technique should only be applied to apps that are behind a load
-// balancer that will *always* set the headers. Otherwise an attacker may be
-// able to provide false information and circumvent security limitations.
-func Forwarded() func(http.Handler) http.Handler {
+// balancer that will *always* set the selected headers. Otherwise an attacker
+// may be able to provide false information and circumvent security limitations.
+func Forwarded(useIP, usePort, useProto bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// get headers
-			ip := r.Header.Get("X-Forwarded-For")
-			port := r.Header.Get("X-Forwarded-Port")
-			proto := r.Header.Get("X-Forwarded-Proto")
+			// get ip, port and protocol
+			ip, port, _ := net.SplitHostPort(r.RemoteAddr)
+			protocol := r.URL.Scheme
 
-			// rewrite remote addr
-			if ip != "" && port != "" {
-				r.RemoteAddr = net.JoinHostPort(ip, port)
+			// get forwarded ip
+			if useIP {
+				forwardedIP := strings.TrimSpace(strings.Split(r.Header.Get("X-Forwarded-For"), ",")[0])
+				if net.ParseIP(forwardedIP) != nil {
+					ip = forwardedIP
+				}
+			}
+
+			// get forwarded port
+			if usePort {
+				forwardedPort := r.Header.Get("X-Forwarded-Port")
+				if n, _ := strconv.Atoi(forwardedPort); n > 0 {
+					port = forwardedPort
+				}
+			}
+
+			// get forwarded protocol
+			if useProto {
+				forwardedProtocol := r.Header.Get("X-Forwarded-Proto")
+				if forwardedProtocol == "https" {
+					protocol = "https"
+				}
+			}
+
+			// rewrite remote addr if changed
+			remote := net.JoinHostPort(ip, port)
+			if r.RemoteAddr != remote {
+				r.RemoteAddr = remote
 			}
 
 			// fake tls if scheme is https
-			if r.TLS == nil && proto == "https" {
+			if r.TLS == nil && protocol == "https" {
 				// set url scheme
 				r.URL.Scheme = "https"
 
