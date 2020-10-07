@@ -17,7 +17,7 @@ import (
 // Note: This technique should only be applied to apps that are behind a load
 // balancer that will *always* set the selected headers. Otherwise an attacker
 // may be able to provide false information and circumvent security limitations.
-func Forwarded(useIP, usePort, useProto bool) func(http.Handler) http.Handler {
+func Forwarded(useIP, usePort, useProto, fakeTLS bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// get ip, port and protocol
@@ -55,7 +55,7 @@ func Forwarded(useIP, usePort, useProto bool) func(http.Handler) http.Handler {
 			}
 
 			// fake tls if scheme is https
-			if r.TLS == nil && protocol == "https" {
+			if fakeTLS && r.TLS == nil && protocol == "https" {
 				// set url scheme
 				r.URL.Scheme = "https"
 

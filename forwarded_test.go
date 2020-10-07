@@ -10,7 +10,7 @@ import (
 
 func TestForwarded(t *testing.T) {
 	handler := Compose(
-		Forwarded(true, true, true),
+		Forwarded(true, true, true, true),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			str := fmt.Sprintf("%s: URL: %s, TLS: %v", r.RemoteAddr, r.URL.String(), r.TLS != nil)
 			_, _ = w.Write([]byte(str))
@@ -56,7 +56,7 @@ func TestForwarded(t *testing.T) {
 	assert.Equal(t, "2.3.4.5:1234: URL: http://example.com, TLS: false", r.Body.String())
 
 	handler = Compose(
-		Forwarded(false, false, false),
+		Forwarded(false, false, false, false),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			str := fmt.Sprintf("%s: URL: %s, TLS: %v", r.RemoteAddr, r.URL.String(), r.TLS != nil)
 			_, _ = w.Write([]byte(str))
