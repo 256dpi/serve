@@ -44,12 +44,24 @@ func TestIP(t *testing.T) {
 			o: "1.1.1.1",
 		},
 		{
+			i: "[::1]:80",
+			o: "::1",
+		},
+		{
+			i: "::1",
+			o: "::1",
+		},
+		{
 			i: ":80",
 			o: "",
+		},
+		{
+			i: "foo",
+			o: "foo",
 		},
 	}
 
 	for _, item := range matrix {
-		assert.Equal(t, item.o, IP(item.i))
+		assert.Equal(t, item.o, IP(item.i), item)
 	}
 }

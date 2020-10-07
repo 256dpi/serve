@@ -3,7 +3,6 @@ package serve
 import (
 	"net"
 	"net/url"
-	"strings"
 )
 
 // Hostname will return the hostname from the provided host string. This method
@@ -15,13 +14,11 @@ func Hostname(host string) string {
 
 // IP will return just the IP part from an address of the form ip[:port].
 func IP(addr string) string {
-	// check colon
-	if !strings.ContainsRune(addr, ':') {
+	// attempt split
+	ip, _, err := net.SplitHostPort(addr)
+	if err != nil {
 		return addr
 	}
-
-	// split addr
-	ip, _, _ := net.SplitHostPort(addr)
 
 	return ip
 }
