@@ -6,4 +6,4 @@
 [![Release](https://img.shields.io/github/release/256dpi/serve.svg)](https://github.com/256dpi/serve/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/256dpi/serve)](https://goreportcard.com/report/github.com/256dpi/serve)
 
-**A collection of basic tools for building Go based APIs.**
+**A collection of tools for building and testing Go based APIs.**
