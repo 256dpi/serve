@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAssetServer(t *testing.T) {
-	handler := AssetServer("/", ".test/assets/")
+func TestDirectory(t *testing.T) {
+	handler := Directory("/", ".test/assets/")
 
 	r := Record(handler, "GET", "/", nil, "")
 	assert.Equal(t, 200, r.Code)
@@ -21,7 +21,7 @@ func TestAssetServer(t *testing.T) {
 	assert.Equal(t, 200, r.Code)
 	assert.Equal(t, "<h1>Hello</h1>\n", r.Body.String())
 
-	handler = AssetServer("/foo/", ".test/assets/")
+	handler = Directory("/foo/", ".test/assets/")
 
 	r = Record(handler, "GET", "/foo/", nil, "")
 	assert.Equal(t, 200, r.Code)

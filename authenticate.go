@@ -6,8 +6,8 @@ import (
 	"net/http"
 )
 
-// BasicAuth returns a middleware that enforces standard HTTP Basic Authentication.
-func BasicAuth(username, password, realm string) func(http.Handler) http.Handler {
+// Authenticate returns a middleware that enforces a HTTP Basic Authentication.
+func Authenticate(username, password, realm string) func(http.Handler) http.Handler {
 	// hash username and password
 	requiredUser := sha256.Sum256([]byte(username))
 	requiredPass := sha256.Sum256([]byte(password))

@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestBasicAuth(t *testing.T) {
+func TestAuthenticate(t *testing.T) {
 	handler := Compose(
-		BasicAuth("foo", "bar", "Test"),
+		Authenticate("foo", "bar", "Test"),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte("Protected"))
 		}),

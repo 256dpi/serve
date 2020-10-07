@@ -5,10 +5,9 @@ import (
 	"strings"
 )
 
-// AssetServer constructs an asset server handler that serves an asset
-// directory on a specified path and serves the index file for not found paths
-// which is needed to properly serve single page applications.
-func AssetServer(prefix, directory string) http.Handler {
+// Directory constructs a handler that serves a directory found at the specified
+// path. It will serve the index file for not found paths.
+func Directory(prefix, directory string) http.Handler {
 	// ensure prefix
 	prefix = "/" + strings.Trim(prefix, "/")
 
