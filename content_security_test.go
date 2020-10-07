@@ -8,7 +8,7 @@ import (
 )
 
 func TestContentSecurity(t *testing.T) {
-	csp := Compose(
+	handler := Compose(
 		ContentSecurity(ContentPolicy{
 			"default-src": []string{"'self'", "https://example.com"},
 			"style-src":   []string{"'self'", "'unsafe-inline'"},
@@ -18,7 +18,7 @@ func TestContentSecurity(t *testing.T) {
 		}),
 	)
 
-	r := Record(csp, "GET", "https://example.com", nil, "")
+	r := Record(handler, "GET", "https://example.com", nil, "")
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "Hello", r.Body.String())
 	assert.Equal(t, http.Header{

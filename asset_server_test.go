@@ -7,31 +7,31 @@ import (
 )
 
 func TestAssetServer(t *testing.T) {
-	as1 := AssetServer("/", ".test/assets/")
+	handler := AssetServer("/", ".test/assets/")
 
-	r := Record(as1, "GET", "/", nil, "")
+	r := Record(handler, "GET", "/", nil, "")
 	assert.Equal(t, 200, r.Code)
 	assert.Equal(t, "<h1>Hello</h1>\n", r.Body.String())
 
-	r = Record(as1, "GET", "/foo", nil, "")
+	r = Record(handler, "GET", "/foo", nil, "")
 	assert.Equal(t, 200, r.Code)
 	assert.Equal(t, "<h1>Hello</h1>\n", r.Body.String())
 
-	r = Record(as1, "GET", "/foo/bar", nil, "")
+	r = Record(handler, "GET", "/foo/bar", nil, "")
 	assert.Equal(t, 200, r.Code)
 	assert.Equal(t, "<h1>Hello</h1>\n", r.Body.String())
 
-	as2 := AssetServer("/foo/", ".test/assets/")
+	handler = AssetServer("/foo/", ".test/assets/")
 
-	r = Record(as2, "GET", "/foo/", nil, "")
+	r = Record(handler, "GET", "/foo/", nil, "")
 	assert.Equal(t, 200, r.Code)
 	assert.Equal(t, "<h1>Hello</h1>\n", r.Body.String())
 
-	r = Record(as2, "GET", "/foo/foo", nil, "")
+	r = Record(handler, "GET", "/foo/foo", nil, "")
 	assert.Equal(t, 200, r.Code)
 	assert.Equal(t, "<h1>Hello</h1>\n", r.Body.String())
 
-	r = Record(as2, "GET", "/foo/bar", nil, "")
+	r = Record(handler, "GET", "/foo/bar", nil, "")
 	assert.Equal(t, 200, r.Code)
 	assert.Equal(t, "<h1>Hello</h1>\n", r.Body.String())
 }

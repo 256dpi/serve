@@ -9,14 +9,14 @@ import (
 )
 
 func TestSecurity(t *testing.T) {
-	sec := Compose(
+	handler := Compose(
 		Security(false, false, 7*24*time.Hour),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte("Hello"))
 		}),
 	)
 
-	r := Record(sec, "GET", "http://example.com", nil, "")
+	r := Record(handler, "GET", "http://example.com", nil, "")
 	assert.Equal(t, http.StatusMovedPermanently, r.Code)
 	assert.Equal(t, "<a href=\"https://example.com\">Moved Permanently</a>.\n\n", r.Body.String())
 	assert.Equal(t, http.Header{
@@ -24,7 +24,7 @@ func TestSecurity(t *testing.T) {
 		"Location":     []string{"https://example.com"},
 	}, r.Header())
 
-	r = Record(sec, "GET", "https://example.com", nil, "")
+	r = Record(handler, "GET", "https://example.com", nil, "")
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "Hello", r.Body.String())
 	assert.Equal(t, http.Header{
@@ -39,14 +39,14 @@ func TestSecurity(t *testing.T) {
 }
 
 func TestSecurityAllowInsecure(t *testing.T) {
-	sec := Compose(
+	handler := Compose(
 		Security(true, false, 7*24*time.Hour),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte("Hello"))
 		}),
 	)
 
-	r := Record(sec, "GET", "http://example.com", nil, "")
+	r := Record(handler, "GET", "http://example.com", nil, "")
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "Hello", r.Body.String())
 	assert.Equal(t, http.Header{
@@ -60,14 +60,14 @@ func TestSecurityAllowInsecure(t *testing.T) {
 }
 
 func TestSecurityNoFrontend(t *testing.T) {
-	sec := Compose(
+	handler := Compose(
 		Security(false, true, 7*24*time.Hour),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte("Hello"))
 		}),
 	)
 
-	r := Record(sec, "GET", "https://example.com", nil, "")
+	r := Record(handler, "GET", "https://example.com", nil, "")
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "Hello", r.Body.String())
 	assert.Equal(t, http.Header{

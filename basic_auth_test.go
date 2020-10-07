@@ -9,20 +9,20 @@ import (
 )
 
 func TestBasicAuth(t *testing.T) {
-	ba := Compose(
+	handler := Compose(
 		BasicAuth("foo", "bar", "Test"),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte("Protected"))
 		}),
 	)
 
-	r := Record(ba, "GET", "/foo", nil, "")
+	r := Record(handler, "GET", "/foo", nil, "")
 	assert.Equal(t, "", r.Body.String())
 	assert.Equal(t, http.Header{
 		"Www-Authenticate": []string{`Basic realm="Test"`},
 	}, r.Header())
 
-	r = Record(ba, "GET", "/foo", map[string]string{
+	r = Record(handler, "GET", "/foo", map[string]string{
 		"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte("foo:foo")),
 	}, "")
 	assert.Equal(t, "", r.Body.String())
@@ -30,7 +30,7 @@ func TestBasicAuth(t *testing.T) {
 		"Www-Authenticate": []string{`Basic realm="Test"`},
 	}, r.Header())
 
-	r = Record(ba, "GET", "/foo", map[string]string{
+	r = Record(handler, "GET", "/foo", map[string]string{
 		"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte("foo:bar")),
 	}, "")
 	assert.Equal(t, "Protected", r.Body.String())
