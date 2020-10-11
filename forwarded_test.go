@@ -10,7 +10,24 @@ import (
 
 func TestForwarded(t *testing.T) {
 	handler := Compose(
-		Forwarded(true, true, true, true),
+		Forwarded(false, false, false, false, 0),
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			str := fmt.Sprintf("%s: URL: %s, TLS: %v", r.RemoteAddr, r.URL.String(), r.TLS != nil)
+			_, _ = w.Write([]byte(str))
+		}),
+	)
+
+	// ignored
+	r := Record(handler, "GET", "http://example.com", map[string]string{
+		"X-Forwarded-For":   "1.2.3.4",
+		"X-Forwarded-Port":  "4321",
+		"X-Forwarded-Proto": "https",
+	}, "")
+	assert.Equal(t, http.StatusOK, r.Code)
+	assert.Equal(t, "192.0.2.1:1234: URL: http://example.com, TLS: false", r.Body.String())
+
+	handler = Compose(
+		Forwarded(true, true, true, true, 0),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			str := fmt.Sprintf("%s: URL: %s, TLS: %v", r.RemoteAddr, r.URL.String(), r.TLS != nil)
 			_, _ = w.Write([]byte(str))
@@ -18,7 +35,7 @@ func TestForwarded(t *testing.T) {
 	)
 
 	// missing
-	r := Record(handler, "GET", "http://example.com", nil, "")
+	r = Record(handler, "GET", "http://example.com", nil, "")
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "192.0.2.1:1234: URL: http://example.com, TLS: false", r.Body.String())
 
@@ -56,19 +73,28 @@ func TestForwarded(t *testing.T) {
 	assert.Equal(t, "2.3.4.5:1234: URL: http://example.com, TLS: false", r.Body.String())
 
 	handler = Compose(
-		Forwarded(false, false, false, false),
+		Forwarded(true, true, true, true, -2),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			str := fmt.Sprintf("%s: URL: %s, TLS: %v", r.RemoteAddr, r.URL.String(), r.TLS != nil)
 			_, _ = w.Write([]byte(str))
 		}),
 	)
 
-	// ignored
 	r = Record(handler, "GET", "http://example.com", map[string]string{
-		"X-Forwarded-For":   "1.2.3.4",
-		"X-Forwarded-Port":  "4321",
-		"X-Forwarded-Proto": "https",
+		"X-Forwarded-For": "1.2.3.4",
 	}, "")
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "192.0.2.1:1234: URL: http://example.com, TLS: false", r.Body.String())
+
+	r = Record(handler, "GET", "http://example.com", map[string]string{
+		"X-Forwarded-For": "2.3.4.5, 1.2.3.4",
+	}, "")
+	assert.Equal(t, http.StatusOK, r.Code)
+	assert.Equal(t, "2.3.4.5:1234: URL: http://example.com, TLS: false", r.Body.String())
+
+	r = Record(handler, "GET", "http://example.com", map[string]string{
+		"X-Forwarded-For": "3.4.5.6, 2.3.4.5, 1.2.3.4",
+	}, "")
+	assert.Equal(t, http.StatusOK, r.Code)
+	assert.Equal(t, "2.3.4.5:1234: URL: http://example.com, TLS: false", r.Body.String())
 }
