@@ -54,12 +54,13 @@ func Forwarded(useIP, usePort, useProto, fakeTLS bool) func(http.Handler) http.H
 				r.RemoteAddr = remote
 			}
 
+			// update scheme if changed
+			if r.URL.Scheme != protocol {
+				r.URL.Scheme = protocol
+			}
+
 			// fake tls if scheme is https
 			if fakeTLS && r.TLS == nil && protocol == "https" {
-				// set url scheme
-				r.URL.Scheme = "https"
-
-				// set fake tls state
 				r.TLS = &tls.ConnectionState{
 					Version:           tls.VersionTLS13,
 					HandshakeComplete: true,
