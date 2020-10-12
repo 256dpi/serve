@@ -54,7 +54,7 @@ func Secure(w http.ResponseWriter, r *http.Request, allowInsecure, noFrontend bo
 	}
 
 	// set default content security policy
-	w.Header().Set("Content-Security-Policy", "default-src 'none'")
+	w.Header().Set("Content-Security-Policy", "base-uri 'self'; default-src 'none'; form-action 'self; frame-ancestors 'none'")
 
 	return true
 }

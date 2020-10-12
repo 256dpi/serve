@@ -28,7 +28,7 @@ func TestSecurity(t *testing.T) {
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "Hello", r.Body.String())
 	assert.Equal(t, http.Header{
-		"Content-Security-Policy":   []string{"default-src 'none'"},
+		"Content-Security-Policy":   []string{"base-uri 'self'; default-src 'none'; form-action 'self; frame-ancestors 'none'"},
 		"Content-Type":              []string{"text/plain; charset=utf-8"},
 		"Referrer-Policy":           []string{"no-referrer-when-downgrade"},
 		"Strict-Transport-Security": []string{"max-age=604800"},
@@ -50,7 +50,7 @@ func TestSecurityAllowInsecure(t *testing.T) {
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "Hello", r.Body.String())
 	assert.Equal(t, http.Header{
-		"Content-Security-Policy": []string{"default-src 'none'"},
+		"Content-Security-Policy": []string{"base-uri 'self'; default-src 'none'; form-action 'self; frame-ancestors 'none'"},
 		"Content-Type":            []string{"text/plain; charset=utf-8"},
 		"Referrer-Policy":         []string{"no-referrer-when-downgrade"},
 		"X-Content-Type-Options":  []string{"nosniff"},
@@ -71,7 +71,7 @@ func TestSecurityNoFrontend(t *testing.T) {
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "Hello", r.Body.String())
 	assert.Equal(t, http.Header{
-		"Content-Security-Policy":   []string{"default-src 'none'"},
+		"Content-Security-Policy":   []string{"base-uri 'self'; default-src 'none'; form-action 'self; frame-ancestors 'none'"},
 		"Content-Type":              []string{"text/plain; charset=utf-8"},
 		"Referrer-Policy":           []string{"origin-when-cross-origin, strict-origin-when-cross-origin"},
 		"Strict-Transport-Security": []string{"max-age=604800"},
