@@ -35,7 +35,9 @@ func Secure(w http.ResponseWriter, r *http.Request, allowInsecure, noFrontend bo
 	// set basic security headers
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("X-Frame-Options", "DENY")
-	w.Header().Set("X-Xss-Protection", "1; mode=block")
+
+	// disable XSS protection (https://github.com/helmetjs/helmet/issues/230)
+	w.Header().Set("X-Xss-Protection", "0")
 
 	// set referrer policy
 	if noFrontend {

@@ -34,7 +34,7 @@ func TestSecurity(t *testing.T) {
 		"Strict-Transport-Security": []string{"max-age=604800"},
 		"X-Content-Type-Options":    []string{"nosniff"},
 		"X-Frame-Options":           []string{"DENY"},
-		"X-Xss-Protection":          []string{"1; mode=block"},
+		"X-Xss-Protection":          []string{"0"},
 	}, r.Header())
 }
 
@@ -55,7 +55,7 @@ func TestSecurityAllowInsecure(t *testing.T) {
 		"Referrer-Policy":         []string{"no-referrer-when-downgrade"},
 		"X-Content-Type-Options":  []string{"nosniff"},
 		"X-Frame-Options":         []string{"DENY"},
-		"X-Xss-Protection":        []string{"1; mode=block"},
+		"X-Xss-Protection":        []string{"0"},
 	}, r.Header())
 }
 
@@ -77,6 +77,6 @@ func TestSecurityNoFrontend(t *testing.T) {
 		"Strict-Transport-Security": []string{"max-age=604800"},
 		"X-Content-Type-Options":    []string{"nosniff"},
 		"X-Frame-Options":           []string{"DENY"},
-		"X-Xss-Protection":          []string{"1; mode=block"},
+		"X-Xss-Protection":          []string{"0"},
 	}, r.Header())
 }
