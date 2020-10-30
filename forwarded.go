@@ -11,6 +11,12 @@ import (
 // TODO: Support new "Forwarded" header?
 //  => https://github.com/gorilla/handlers/blob/master/proxy_headers.go
 
+// GoogleCloud can be used with Forwarded to setup header parsing for the Google
+// Cloud Load Balancer.
+func GoogleCloud(fakeTLS bool) (bool, bool, bool, bool, int) {
+	return true, false, true, fakeTLS, -2
+}
+
 // Forwarded is a middleware that will parse the selected "X-Forwarded-X" headers
 // and mutate the request to reflect the conditions described by the headers. As
 // the "X-Forwarded-For" header may contain multiple values, the relative index

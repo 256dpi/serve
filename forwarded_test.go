@@ -8,6 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestGoogleCloud(t *testing.T) {
+	Forwarded(GoogleCloud(false))
+}
+
 func TestForwarded(t *testing.T) {
 	handler := Compose(
 		Forwarded(false, false, false, false, 0),
