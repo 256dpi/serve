@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-// TODO: Merge-able content security policies?
-
 // ContentPolicy for defining content security.
 type ContentPolicy map[string][]string
 

@@ -8,11 +8,8 @@ import (
 	"strings"
 )
 
-// TODO: Support new "Forwarded" header?
-//  => https://github.com/gorilla/handlers/blob/master/proxy_headers.go
-
-// GoogleCloud can be used with Forwarded to setup header parsing for the Google
-// Cloud Load Balancer.
+// GoogleCloud can be used with Forwarded to setup proper header parsing for
+// traffic from Google Cloud load balancers.
 func GoogleCloud(fakeTLS bool) (bool, bool, bool, bool, int) {
 	return true, false, true, fakeTLS, -2
 }
