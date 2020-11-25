@@ -22,8 +22,8 @@ func CORSDefault(headers ...string) CORSPolicy {
 			"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS",
 		},
 		AllowedHeaders: append([]string{
-			"Accept", "Authorization", "Content-Type", "Origin",
-			"X-Requested-With",
+			"Accept", "Authorization", "Cache-Control", "Content-Disposition",
+			"Content-Type", "Origin", "X-Requested-With",
 		}, headers...),
 		ExposedHeaders:   []string{"Content-Type"},
 		AllowCredentials: true,
