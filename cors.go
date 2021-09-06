@@ -14,10 +14,11 @@ func CORS(policy CORSPolicy) func(http.Handler) http.Handler {
 	return cors.New(policy).Handler
 }
 
-// CORSDefault returns a default cors policy for basic APIs.
-func CORSDefault(headers ...string) CORSPolicy {
+// CORSDefault returns a default cors policy for basic APIs. Set origin to "*"
+// to allow request from any origin.
+func CORSDefault(origin string, headers ...string) CORSPolicy {
 	return CORSPolicy{
-		AllowedOrigins: []string{"*"},
+		AllowedOrigins: []string{origin},
 		AllowedMethods: []string{
 			"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS",
 		},

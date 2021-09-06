@@ -45,3 +45,29 @@ func TestCORS(t *testing.T) {
 		"Vary":                         []string{"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"},
 	}, res.Header())
 }
+
+func TestCORSDefault(t *testing.T) {
+	handler := Compose(
+		CORS(CORSDefault("example.com")),
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
+
+	res := Record(handler, "GET", "/", map[string]string{
+		"Origin": "example.com",
+	}, "")
+	assert.Equal(t, http.StatusOK, res.Code)
+	assert.Equal(t, http.Header{
+		"Access-Control-Allow-Origin":      {"example.com"},
+		"Access-Control-Allow-Credentials": {"true"},
+		"Access-Control-Expose-Headers":    {"Content-Type"},
+		"Vary":                             {"Origin"},
+	}, res.Header())
+
+	res = Record(handler, "GET", "/", map[string]string{
+		"Origin": "bar.com",
+	}, "")
+	assert.Equal(t, http.StatusOK, res.Code)
+	assert.Equal(t, http.Header{
+		"Vary": {"Origin"},
+	}, res.Header())
+}
