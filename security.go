@@ -19,7 +19,7 @@ func Security(allowInsecure, noFrontend bool, stsMaxAge time.Duration) func(http
 	}
 }
 
-// Secure will enforce various common web security policies. It return whether
+// Secure will enforce various common web security policies. It returns whether
 // the request is safe to be further processed. Subsequent handlers should
 // update the headers with a more applicable content security policy.
 func Secure(w http.ResponseWriter, r *http.Request, allowInsecure, noFrontend bool, stsMaxAge time.Duration) bool {
@@ -41,7 +41,7 @@ func Secure(w http.ResponseWriter, r *http.Request, allowInsecure, noFrontend bo
 
 	// set referrer policy
 	if noFrontend {
-		// only send origin for cross origin requests
+		// only send origin for cross-origin requests
 		w.Header().Set("Referrer-Policy", "origin-when-cross-origin, strict-origin-when-cross-origin")
 	} else {
 		// no referrer when downgraded or insecure

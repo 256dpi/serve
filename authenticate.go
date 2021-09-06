@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// Authenticate returns a middleware that enforces a HTTP Basic Authentication.
+// Authenticate returns a middleware that enforces HTTP Basic Authentication.
 func Authenticate(username, password, realm string) func(http.Handler) http.Handler {
 	// hash username and password
 	requiredUser := sha256.Sum256([]byte(username))
@@ -27,7 +27,7 @@ func Authenticate(username, password, realm string) func(http.Handler) http.Hand
 				return
 			}
 
-			// otherwise require authentication
+			// otherwise, require authentication
 			w.Header().Set("WWW-Authenticate", `Basic realm="`+realm+`"`)
 			w.WriteHeader(http.StatusUnauthorized)
 		})

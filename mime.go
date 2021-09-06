@@ -74,7 +74,7 @@ func initMime() {
 // extension. The extension ext should begin with a leading dot. When ext has no
 // associated type, it returns "".
 //
-// Note: It will prefer a static DB over the to the builtin mime package.
+// Note: It will prefer a static DB over the builtin mime package.
 func MimeTypeByExtension(ext string, withCharset bool) string {
 	// initialize
 	initMime()
@@ -104,7 +104,7 @@ func MimeTypeByExtension(ext string, withCharset bool) string {
 // provided MIME type. The returned extensions will each begin with a leading dot.
 // When typ has no associated extensions, it returns a nil slice.
 //
-// Note: It will prefer a static DB over the to the builtin mime package.
+// Note: It will prefer a static DB over the builtin mime package.
 func ExtensionsByMimeType(typ string) ([]string, error) {
 	// initialize
 	initMime()

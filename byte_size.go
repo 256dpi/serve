@@ -20,7 +20,7 @@ func MustByteSize(str string) int64 {
 	return bytes
 }
 
-// ByteSize parses human readable byte sizes (e.g. 4K, 20MiB or 5GB) and returns
+// ByteSize parses human-readable byte sizes (e.g. 4K, 20 MiB or 5 GB) and returns
 // the amount of bytes they represent. ErrInvalidByteSize is returned if the
 // specified byte size is invalid.
 func ByteSize(str string) (int64, error) {

@@ -20,7 +20,7 @@ func GoogleCloud(fakeTLS bool) (bool, bool, bool, bool, int) {
 // of the client IP address must be specified.
 //
 // Note: This technique should only be applied to apps that are behind a load
-// balancer that will *always* set/append the selected headers. Otherwise an
+// balancer that will *always* set/append the selected headers. Otherwise, an
 // attacker may be able to provide false information and circumvent security
 // limitations.
 func Forwarded(useFor, usePort, useProto, fakeTLS bool, forIndex int) func(http.Handler) http.Handler {

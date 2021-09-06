@@ -41,7 +41,7 @@ func LimitBody(w http.ResponseWriter, r *http.Request, limit int64) {
 	}
 }
 
-// BodyLimiter wraps a io.ReadCloser and keeps a reference to the original.
+// BodyLimiter wraps an io.ReadCloser and keeps a reference to the original.
 type BodyLimiter struct {
 	Length   int64
 	Limit    int64
