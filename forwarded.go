@@ -2,6 +2,7 @@ package serve
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net"
 	"net/http"
 	"strconv"
@@ -15,6 +16,7 @@ type ForwardedConfig struct {
 	UseProto bool
 	FakeTLS  bool
 	ForIndex int
+	Debug    bool
 }
 
 // GoogleCloud can be used with Forwarded to setup proper header parsing for
@@ -53,6 +55,7 @@ func ParseForwardedConfig(str string) ForwardedConfig {
 	_, useProto := keywords["use-proto"]
 	_, fakeTLS := keywords["fake-tls"]
 	forIndex, _ := strconv.Atoi(keywords["for-index"])
+	_, debug := keywords["debug"]
 
 	return ForwardedConfig{
 		UseFor:   useFor,
@@ -60,6 +63,7 @@ func ParseForwardedConfig(str string) ForwardedConfig {
 		UseProto: useProto,
 		FakeTLS:  fakeTLS,
 		ForIndex: forIndex,
+		Debug:    debug,
 	}
 }
 
@@ -78,6 +82,15 @@ func Forwarded(config ForwardedConfig) func(http.Handler) http.Handler {
 			// get ip, port and protocol
 			ip, port, _ := net.SplitHostPort(r.RemoteAddr)
 			protocol := r.URL.Scheme
+
+			// debug
+			if config.Debug {
+				fmt.Printf("serve: forwarded headers: for=%q, port=%q, proto=%q\n",
+					r.Header.Get("X-Forwarded-For"),
+					r.Header.Get("X-Forwarded-Port"),
+					r.Header.Get("X-Forwarded-Proto"),
+				)
+			}
 
 			// get forwarded for
 			if config.UseFor {
@@ -118,16 +131,25 @@ func Forwarded(config ForwardedConfig) func(http.Handler) http.Handler {
 			// rewrite remote addr if changed
 			remote := net.JoinHostPort(ip, port)
 			if r.RemoteAddr != remote {
+				if config.Debug {
+					fmt.Printf("==> changing remote addr from %q to %q\n", r.RemoteAddr, remote)
+				}
 				r.RemoteAddr = remote
 			}
 
 			// update scheme if changed
 			if r.URL.Scheme != protocol {
+				if config.Debug {
+					fmt.Printf("==> changing url scheme from %q to %q\n", r.URL.Scheme, protocol)
+				}
 				r.URL.Scheme = protocol
 			}
 
 			// fake tls if scheme is https
 			if config.FakeTLS && r.TLS == nil && protocol == "https" {
+				if config.Debug {
+					fmt.Println("=> faking TLS connection")
+				}
 				r.TLS = &tls.ConnectionState{
 					Version:           tls.VersionTLS13,
 					HandshakeComplete: true,

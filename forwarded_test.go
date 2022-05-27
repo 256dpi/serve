@@ -45,7 +45,7 @@ func TestForwarded(t *testing.T) {
 	assert.Equal(t, "192.0.2.1:1234: URL: http://example.com, TLS: false", r.Body.String())
 
 	handler = Compose(
-		Forwarded(ForwardedConfig{true, true, true, true, 0}),
+		Forwarded(ForwardedConfig{true, true, true, true, 0, false}),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			str := fmt.Sprintf("%s: URL: %s, TLS: %v", r.RemoteAddr, r.URL.String(), r.TLS != nil)
 			_, _ = w.Write([]byte(str))
@@ -91,7 +91,7 @@ func TestForwarded(t *testing.T) {
 	assert.Equal(t, "2.3.4.5:1234: URL: http://example.com, TLS: false", r.Body.String())
 
 	handler = Compose(
-		Forwarded(ForwardedConfig{true, true, true, true, -2}),
+		Forwarded(ForwardedConfig{true, true, true, true, -2, false}),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			str := fmt.Sprintf("%s: URL: %s, TLS: %v", r.RemoteAddr, r.URL.String(), r.TLS != nil)
 			_, _ = w.Write([]byte(str))
