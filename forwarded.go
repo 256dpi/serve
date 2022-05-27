@@ -8,10 +8,59 @@ import (
 	"strings"
 )
 
+// ForwardedConfig defines handling of "X-Forwarded-X" headers.
+type ForwardedConfig struct {
+	UseFor   bool
+	UsePort  bool
+	UseProto bool
+	FakeTLS  bool
+	ForIndex int
+}
+
 // GoogleCloud can be used with Forwarded to setup proper header parsing for
 // traffic from Google Cloud load balancers.
-func GoogleCloud(fakeTLS bool) (bool, bool, bool, bool, int) {
-	return true, false, true, fakeTLS, -2
+func GoogleCloud(fakeTLS bool) ForwardedConfig {
+	return ForwardedConfig{
+		UseFor:   true,
+		UsePort:  false,
+		UseProto: true,
+		FakeTLS:  fakeTLS,
+		ForIndex: -2,
+	}
+}
+
+// ParseForwardedConfig will parse a forwarded config from the specified string
+// and return it. This function can be used to infer a configuration on runtime
+// from an environment variable or configuration file. The following comma
+// seperated list of keywords ist supported: "use-for", "use-port", "use-proto",
+// "fake-tls" and "for-index=1".
+func ParseForwardedConfig(str string) ForwardedConfig {
+	// parse keywords
+	keywords := map[string]string{}
+	for _, kw := range strings.Split(str, ",") {
+		kw = strings.TrimSpace(kw)
+		kv := strings.Split(kw, "=")
+		if len(kv) == 1 {
+			keywords[kv[0]] = ""
+		} else if len(kv) == 2 {
+			keywords[kv[0]] = kv[1]
+		}
+	}
+
+	// get keywords
+	_, useFor := keywords["use-for"]
+	_, usePort := keywords["use-port"]
+	_, useProto := keywords["use-proto"]
+	_, fakeTLS := keywords["fake-tls"]
+	forIndex, _ := strconv.Atoi(keywords["for-index"])
+
+	return ForwardedConfig{
+		UseFor:   useFor,
+		UsePort:  usePort,
+		UseProto: useProto,
+		FakeTLS:  fakeTLS,
+		ForIndex: forIndex,
+	}
 }
 
 // Forwarded is a middleware that will parse the selected "X-Forwarded-X" headers
@@ -23,7 +72,7 @@ func GoogleCloud(fakeTLS bool) (bool, bool, bool, bool, int) {
 // balancer that will *always* set/append the selected headers. Otherwise, an
 // attacker may be able to provide false information and circumvent security
 // limitations.
-func Forwarded(useFor, usePort, useProto, fakeTLS bool, forIndex int) func(http.Handler) http.Handler {
+func Forwarded(config ForwardedConfig) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// get ip, port and protocol
@@ -31,12 +80,12 @@ func Forwarded(useFor, usePort, useProto, fakeTLS bool, forIndex int) func(http.
 			protocol := r.URL.Scheme
 
 			// get forwarded for
-			if useFor {
+			if config.UseFor {
 				// get header
 				forwardedFor := strings.Split(r.Header.Get("X-Forwarded-For"), ",")
 
 				// compute index
-				forwardedIndex := forIndex
+				forwardedIndex := config.ForIndex
 				if forwardedIndex < 0 {
 					forwardedIndex = len(forwardedFor) + forwardedIndex
 				}
@@ -51,7 +100,7 @@ func Forwarded(useFor, usePort, useProto, fakeTLS bool, forIndex int) func(http.
 			}
 
 			// get forwarded port
-			if usePort {
+			if config.UsePort {
 				forwardedPort := r.Header.Get("X-Forwarded-Port")
 				if n, _ := strconv.Atoi(forwardedPort); n > 0 {
 					port = forwardedPort
@@ -59,7 +108,7 @@ func Forwarded(useFor, usePort, useProto, fakeTLS bool, forIndex int) func(http.
 			}
 
 			// get forwarded protocol
-			if useProto {
+			if config.UseProto {
 				forwardedProtocol := r.Header.Get("X-Forwarded-Proto")
 				if forwardedProtocol == "https" {
 					protocol = "https"
@@ -78,7 +127,7 @@ func Forwarded(useFor, usePort, useProto, fakeTLS bool, forIndex int) func(http.
 			}
 
 			// fake tls if scheme is https
-			if fakeTLS && r.TLS == nil && protocol == "https" {
+			if config.FakeTLS && r.TLS == nil && protocol == "https" {
 				r.TLS = &tls.ConnectionState{
 					Version:           tls.VersionTLS13,
 					HandshakeComplete: true,

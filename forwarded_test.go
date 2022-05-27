@@ -12,9 +12,23 @@ func TestGoogleCloud(t *testing.T) {
 	Forwarded(GoogleCloud(false))
 }
 
+func TestParseForwardedConfig(t *testing.T) {
+	cfg := ParseForwardedConfig("")
+	assert.Equal(t, ForwardedConfig{}, cfg)
+
+	cfg = ParseForwardedConfig("use-for, use-port,use-proto  , for-index=-1, fake-tls, for-index=-2")
+	assert.Equal(t, ForwardedConfig{
+		UseFor:   true,
+		UsePort:  true,
+		UseProto: true,
+		FakeTLS:  true,
+		ForIndex: -2,
+	}, cfg)
+}
+
 func TestForwarded(t *testing.T) {
 	handler := Compose(
-		Forwarded(false, false, false, false, 0),
+		Forwarded(ForwardedConfig{}),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			str := fmt.Sprintf("%s: URL: %s, TLS: %v", r.RemoteAddr, r.URL.String(), r.TLS != nil)
 			_, _ = w.Write([]byte(str))
@@ -31,7 +45,7 @@ func TestForwarded(t *testing.T) {
 	assert.Equal(t, "192.0.2.1:1234: URL: http://example.com, TLS: false", r.Body.String())
 
 	handler = Compose(
-		Forwarded(true, true, true, true, 0),
+		Forwarded(ForwardedConfig{true, true, true, true, 0}),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			str := fmt.Sprintf("%s: URL: %s, TLS: %v", r.RemoteAddr, r.URL.String(), r.TLS != nil)
 			_, _ = w.Write([]byte(str))
@@ -77,7 +91,7 @@ func TestForwarded(t *testing.T) {
 	assert.Equal(t, "2.3.4.5:1234: URL: http://example.com, TLS: false", r.Body.String())
 
 	handler = Compose(
-		Forwarded(true, true, true, true, -2),
+		Forwarded(ForwardedConfig{true, true, true, true, -2}),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			str := fmt.Sprintf("%s: URL: %s, TLS: %v", r.RemoteAddr, r.URL.String(), r.TLS != nil)
 			_, _ = w.Write([]byte(str))
