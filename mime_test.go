@@ -64,6 +64,41 @@ func TestExtensionsByMimeType(t *testing.T) {
 	}))
 }
 
+func TestParseContentDisposition(t *testing.T) {
+	typ, params, err := ParseMediaType("foo")
+	assert.NoError(t, err)
+	assert.Equal(t, "foo", typ)
+	assert.Empty(t, params)
+
+	_, _, err = ParseMediaType("foo; bar")
+	assert.Error(t, err)
+
+	typ, params, err = ParseMediaType("foo; bar=baz")
+	assert.NoError(t, err)
+	assert.Equal(t, "foo", typ)
+	assert.Equal(t, map[string]string{"bar": "baz"}, params)
+
+	typ, params, err = ParseMediaType("foo; bar*=utf-8''baz")
+	assert.NoError(t, err)
+	assert.Equal(t, "foo", typ)
+	assert.Equal(t, map[string]string{"bar": "baz"}, params)
+
+	typ, params, err = ParseMediaType("foo; bar*=utf-8''A%20B")
+	assert.NoError(t, err)
+	assert.Equal(t, "foo", typ)
+	assert.Equal(t, map[string]string{"bar": "A B"}, params)
+
+	typ, params, err = ParseMediaType("foo; bar*=utf-8''file_$!&()+#@,-_<>:\"/[]?=.mp4")
+	assert.NoError(t, err)
+	assert.Equal(t, "foo", typ)
+	assert.Equal(t, map[string]string{"bar": "file_$!&()+#@,-_<>:\"/[]?=.mp4"}, params)
+
+	typ, params, err = ParseMediaType("foo; bar*=utf-8''file_$!&()+#@,-_<>:\"/[]?=.mp4; baz=hmm")
+	assert.NoError(t, err)
+	assert.Equal(t, "foo", typ)
+	assert.Equal(t, map[string]string{"bar": "file_$!&()+#@,-_<>:\"/[]?=.mp4", "baz": "hmm"}, params)
+}
+
 func BenchmarkMimeTypeByExtension(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		MimeTypeByExtension(".html", true)

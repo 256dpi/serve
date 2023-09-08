@@ -4,7 +4,9 @@ import (
 	// for embeds
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"mime"
+	"net/url"
 	"sort"
 	"strings"
 	"sync"
@@ -128,4 +130,52 @@ func ExtensionsByMimeType(typ string) ([]string, error) {
 	}
 
 	return entry.Extensions, nil
+}
+
+// ParseMediaType extends mime.ParseMediaType to support the decoding of
+// filenames that contain special characters.
+func ParseMediaType(str string) (string, map[string]string, error) {
+	// attempt to parse string
+	typ, params, err := mime.ParseMediaType(str)
+	if err == nil || !errors.Is(err, mime.ErrInvalidMediaParameter) {
+		return typ, params, err
+	}
+
+	// return error if string does not contain an utf-8 encoding
+	if !strings.Contains(str, "utf-8''") {
+		return typ, params, err
+	}
+
+	// iterate over parts
+	rest := str
+	str = ""
+	for len(rest) > 0 {
+		// split rest
+		prefix, suffix, ok := strings.Cut(rest, "utf-8''")
+		if !ok {
+			str += rest
+			break
+		}
+
+		// add prefix and separator
+		str += prefix
+		str += "utf-8''"
+
+		// split suffix
+		code, trail, ok := strings.Cut(suffix, ";")
+		rest = trail
+
+		// escape special characters
+		for _, char := range "()<>@,:\"/[]?=" {
+			code = strings.Replace(code, string(char), url.QueryEscape(string(char)), -1)
+		}
+
+		// add code
+		str += code
+		if ok {
+			str += ";"
+		}
+	}
+
+	return mime.ParseMediaType(str)
 }
