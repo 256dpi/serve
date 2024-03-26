@@ -10,7 +10,7 @@ import (
 
 func TestThrottle(t *testing.T) {
 	handler := Compose(
-		Timeout(5*time.Millisecond),
+		Runtime(0, 5*time.Millisecond),
 		Throttle(1),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			time.Sleep(10 * time.Millisecond)
