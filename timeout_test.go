@@ -17,6 +17,6 @@ func TestTimeout(t *testing.T) {
 		}),
 	)
 
-	res := Record(handler, "GET", "/", nil, "")
+	res := Record(nil, handler, "GET", "/", nil, "")
 	assert.Equal(t, http.StatusTooManyRequests, res.Code)
 }

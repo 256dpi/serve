@@ -30,7 +30,7 @@ func TestRecover(t *testing.T) {
 		}),
 	)
 
-	r := Record(sec, "GET", "http://example.com", nil, "")
+	r := Record(nil, sec, "GET", "http://example.com", nil, "")
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "Hello", r.Body.String())
 	assert.Equal(t, http.Header{
@@ -38,7 +38,7 @@ func TestRecover(t *testing.T) {
 		"Foo":          {"Bar"},
 	}, r.Header())
 
-	r = Record(sec, "POST", "http://example.com", nil, "")
+	r = Record(nil, sec, "POST", "http://example.com", nil, "")
 	assert.Equal(t, http.StatusInternalServerError, r.Code)
 	assert.Equal(t, "", r.Body.String())
 	assert.Equal(t, http.Header{}, r.Header())
@@ -46,7 +46,7 @@ func TestRecover(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, "foo", err.Error())
 
-	r = Record(sec, "DELETE", "http://example.com", nil, "")
+	r = Record(nil, sec, "DELETE", "http://example.com", nil, "")
 	assert.Equal(t, http.StatusInternalServerError, r.Code)
 	assert.Equal(t, "", r.Body.String())
 	assert.Equal(t, http.Header{}, r.Header())

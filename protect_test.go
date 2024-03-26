@@ -17,7 +17,7 @@ func TestProtect(t *testing.T) {
 	)
 
 	for i := 0; i < 15; i++ {
-		r := Record(handler, "GET", "http://example.com", nil, "")
+		r := Record(nil, handler, "GET", "http://example.com", nil, "")
 		if i <= 10 {
 			assert.Equal(t, http.StatusOK, r.Code, i)
 		} else {

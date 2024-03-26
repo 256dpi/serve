@@ -16,7 +16,7 @@ func TestSecurity(t *testing.T) {
 		}),
 	)
 
-	r := Record(handler, "GET", "http://example.com", nil, "")
+	r := Record(nil, handler, "GET", "http://example.com", nil, "")
 	assert.Equal(t, http.StatusMovedPermanently, r.Code)
 	assert.Equal(t, "<a href=\"https://example.com\">Moved Permanently</a>.\n\n", r.Body.String())
 	assert.Equal(t, http.Header{
@@ -24,7 +24,7 @@ func TestSecurity(t *testing.T) {
 		"Location":     []string{"https://example.com"},
 	}, r.Header())
 
-	r = Record(handler, "GET", "https://example.com", nil, "")
+	r = Record(nil, handler, "GET", "https://example.com", nil, "")
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "Hello", r.Body.String())
 	assert.Equal(t, http.Header{
@@ -46,7 +46,7 @@ func TestSecurityAllowInsecure(t *testing.T) {
 		}),
 	)
 
-	r := Record(handler, "GET", "http://example.com", nil, "")
+	r := Record(nil, handler, "GET", "http://example.com", nil, "")
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "Hello", r.Body.String())
 	assert.Equal(t, http.Header{
@@ -67,7 +67,7 @@ func TestSecurityNoFrontend(t *testing.T) {
 		}),
 	)
 
-	r := Record(handler, "GET", "https://example.com", nil, "")
+	r := Record(nil, handler, "GET", "https://example.com", nil, "")
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "Hello", r.Body.String())
 	assert.Equal(t, http.Header{

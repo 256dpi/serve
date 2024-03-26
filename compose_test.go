@@ -38,6 +38,6 @@ func TestCompose(t *testing.T) {
 		}),
 	)
 
-	r := Record(handler, "GET", "/foo", nil, "")
+	r := Record(nil, handler, "GET", "/foo", nil, "")
 	assert.Equal(t, "12H", r.Body.String())
 }

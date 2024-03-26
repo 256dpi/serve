@@ -36,7 +36,7 @@ func TestForwarded(t *testing.T) {
 	)
 
 	// ignored
-	r := Record(handler, "GET", "http://example.com", map[string]string{
+	r := Record(nil, handler, "GET", "http://example.com", map[string]string{
 		"X-Forwarded-For":   "1.2.3.4",
 		"X-Forwarded-Port":  "4321",
 		"X-Forwarded-Proto": "https",
@@ -53,12 +53,12 @@ func TestForwarded(t *testing.T) {
 	)
 
 	// missing
-	r = Record(handler, "GET", "http://example.com", nil, "")
+	r = Record(nil, handler, "GET", "http://example.com", nil, "")
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "192.0.2.1:1234: URL: http://example.com, TLS: false", r.Body.String())
 
 	// correct
-	r = Record(handler, "GET", "http://example.com", map[string]string{
+	r = Record(nil, handler, "GET", "http://example.com", map[string]string{
 		"X-Forwarded-For":   "1.2.3.4",
 		"X-Forwarded-Port":  "4321",
 		"X-Forwarded-Proto": "https",
@@ -67,7 +67,7 @@ func TestForwarded(t *testing.T) {
 	assert.Equal(t, "1.2.3.4:4321: URL: https://example.com, TLS: true", r.Body.String())
 
 	// invalid
-	r = Record(handler, "GET", "http://example.com", map[string]string{
+	r = Record(nil, handler, "GET", "http://example.com", map[string]string{
 		"X-Forwarded-For":   "foo",
 		"X-Forwarded-Port":  "foo",
 		"X-Forwarded-Proto": "foo",
@@ -76,7 +76,7 @@ func TestForwarded(t *testing.T) {
 	assert.Equal(t, "192.0.2.1:1234: URL: http://example.com, TLS: false", r.Body.String())
 
 	// empty
-	r = Record(handler, "GET", "http://example.com", map[string]string{
+	r = Record(nil, handler, "GET", "http://example.com", map[string]string{
 		"X-Forwarded-For":   "",
 		"X-Forwarded-Port":  "",
 		"X-Forwarded-Proto": "",
@@ -84,7 +84,7 @@ func TestForwarded(t *testing.T) {
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "192.0.2.1:1234: URL: http://example.com, TLS: false", r.Body.String())
 
-	r = Record(handler, "GET", "http://example.com", map[string]string{
+	r = Record(nil, handler, "GET", "http://example.com", map[string]string{
 		"X-Forwarded-For": "2.3.4.5, 1.2.3.4",
 	}, "")
 	assert.Equal(t, http.StatusOK, r.Code)
@@ -98,19 +98,19 @@ func TestForwarded(t *testing.T) {
 		}),
 	)
 
-	r = Record(handler, "GET", "http://example.com", map[string]string{
+	r = Record(nil, handler, "GET", "http://example.com", map[string]string{
 		"X-Forwarded-For": "1.2.3.4",
 	}, "")
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "192.0.2.1:1234: URL: http://example.com, TLS: false", r.Body.String())
 
-	r = Record(handler, "GET", "http://example.com", map[string]string{
+	r = Record(nil, handler, "GET", "http://example.com", map[string]string{
 		"X-Forwarded-For": "2.3.4.5, 1.2.3.4",
 	}, "")
 	assert.Equal(t, http.StatusOK, r.Code)
 	assert.Equal(t, "2.3.4.5:1234: URL: http://example.com, TLS: false", r.Body.String())
 
-	r = Record(handler, "GET", "http://example.com", map[string]string{
+	r = Record(nil, handler, "GET", "http://example.com", map[string]string{
 		"X-Forwarded-For": "3.4.5.6, 2.3.4.5, 1.2.3.4",
 	}, "")
 	assert.Equal(t, http.StatusOK, r.Code)

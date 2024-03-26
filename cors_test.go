@@ -16,7 +16,7 @@ func TestCORS(t *testing.T) {
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
 	)
 
-	res := Record(handler, "GET", "/", map[string]string{
+	res := Record(nil, handler, "GET", "/", map[string]string{
 		"Origin": "example.com",
 	}, "")
 	assert.Equal(t, http.StatusOK, res.Code)
@@ -25,7 +25,7 @@ func TestCORS(t *testing.T) {
 		"Vary":                        []string{"Origin"},
 	}, res.Header())
 
-	res = Record(handler, "OPTIONS", "/", map[string]string{
+	res = Record(nil, handler, "OPTIONS", "/", map[string]string{
 		"Origin": "example.com",
 	}, "")
 	assert.Equal(t, http.StatusOK, res.Code)
@@ -34,7 +34,7 @@ func TestCORS(t *testing.T) {
 		"Vary":                        []string{"Origin"},
 	}, res.Header())
 
-	res = Record(handler, "OPTIONS", "/", map[string]string{
+	res = Record(nil, handler, "OPTIONS", "/", map[string]string{
 		"Origin":                        "example.com",
 		"Access-Control-Request-Method": "POST",
 	}, "")
@@ -52,7 +52,7 @@ func TestCORSDefault(t *testing.T) {
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
 	)
 
-	res := Record(handler, "GET", "/", map[string]string{
+	res := Record(nil, handler, "GET", "/", map[string]string{
 		"Origin": "example.com",
 	}, "")
 	assert.Equal(t, http.StatusOK, res.Code)
@@ -63,7 +63,7 @@ func TestCORSDefault(t *testing.T) {
 		"Vary":                             {"Origin"},
 	}, res.Header())
 
-	res = Record(handler, "GET", "/", map[string]string{
+	res = Record(nil, handler, "GET", "/", map[string]string{
 		"Origin": "bar.com",
 	}, "")
 	assert.Equal(t, http.StatusOK, res.Code)

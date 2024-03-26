@@ -18,11 +18,11 @@ func TestThrottle(t *testing.T) {
 	)
 
 	go func() {
-		res := Record(handler, "GET", "/", nil, "")
+		res := Record(nil, handler, "GET", "/", nil, "")
 		assert.Equal(t, http.StatusOK, res.Code)
 	}()
 	time.Sleep(time.Millisecond)
 
-	res := Record(handler, "GET", "/", nil, "")
+	res := Record(nil, handler, "GET", "/", nil, "")
 	assert.Equal(t, http.StatusTooManyRequests, res.Code)
 }

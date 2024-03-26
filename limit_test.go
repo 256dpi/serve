@@ -24,10 +24,10 @@ func TestLimit(t *testing.T) {
 		}),
 	)
 
-	res := Record(handler, "GET", "/", nil, "Hello!")
+	res := Record(nil, handler, "GET", "/", nil, "Hello!")
 	assert.Equal(t, http.StatusOK, res.Code)
 
-	res = Record(handler, "GET", "/", nil, "Hello World!")
+	res = Record(nil, handler, "GET", "/", nil, "Hello World!")
 	assert.Equal(t, http.StatusRequestEntityTooLarge, res.Code)
 }
 

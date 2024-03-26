@@ -16,13 +16,13 @@ func TestAuthenticate(t *testing.T) {
 		}),
 	)
 
-	r := Record(handler, "GET", "/foo", nil, "")
+	r := Record(nil, handler, "GET", "/foo", nil, "")
 	assert.Equal(t, "", r.Body.String())
 	assert.Equal(t, http.Header{
 		"Www-Authenticate": []string{`Basic realm="Test"`},
 	}, r.Header())
 
-	r = Record(handler, "GET", "/foo", map[string]string{
+	r = Record(nil, handler, "GET", "/foo", map[string]string{
 		"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte("foo:foo")),
 	}, "")
 	assert.Equal(t, "", r.Body.String())
@@ -30,7 +30,7 @@ func TestAuthenticate(t *testing.T) {
 		"Www-Authenticate": []string{`Basic realm="Test"`},
 	}, r.Header())
 
-	r = Record(handler, "GET", "/foo", map[string]string{
+	r = Record(nil, handler, "GET", "/foo", map[string]string{
 		"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte("foo:bar")),
 	}, "")
 	assert.Equal(t, "Protected", r.Body.String())
