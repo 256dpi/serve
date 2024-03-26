@@ -1,6 +1,6 @@
 module github.com/256dpi/serve
 
-go 1.18
+go 1.21
 
 require (
 	github.com/rs/cors v1.7.0
