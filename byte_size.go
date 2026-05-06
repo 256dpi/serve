@@ -43,21 +43,21 @@ func ByteSize(str string) (int64, error) {
 
 	// calculate size
 	switch str[index:] {
-	case "K", "KiB":
+	case "K", "KB":
 		return num * 1000, nil
-	case "KB":
+	case "KiB":
 		return num * 1024, nil
-	case "M", "MiB":
+	case "M", "MB":
 		return num * 1000 * 1000, nil
-	case "MB":
+	case "MiB":
 		return num * 1024 * 1024, nil
-	case "G", "GiB":
+	case "G", "GB":
 		return num * 1000 * 1000 * 1000, nil
-	case "GB":
+	case "GiB":
 		return num * 1024 * 1024 * 1024, nil
-	case "T", "TiB":
+	case "T", "TB":
 		return num * 1000 * 1000 * 1000 * 1000, nil
-	case "TB":
+	case "TiB":
 		return num * 1024 * 1024 * 1024 * 1024, nil
 	}
 
