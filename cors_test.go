@@ -38,11 +38,11 @@ func TestCORS(t *testing.T) {
 		"Origin":                        "example.com",
 		"Access-Control-Request-Method": "POST",
 	}, "")
-	assert.Equal(t, http.StatusOK, res.Code)
+	assert.Equal(t, http.StatusNoContent, res.Code)
 	assert.Equal(t, http.Header{
 		"Access-Control-Allow-Origin":  []string{"*"},
 		"Access-Control-Allow-Methods": []string{"POST"},
-		"Vary":                         []string{"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"},
+		"Vary":                         []string{"Origin, Access-Control-Request-Method, Access-Control-Request-Headers"},
 	}, res.Header())
 }
 
