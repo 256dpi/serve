@@ -42,9 +42,11 @@ func Runtime(min, max time.Duration) func(http.Handler) http.Handler {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
+				timer := time.NewTimer(min)
+				defer timer.Stop()
 				select {
 				case <-newCtx.Done():
-				case <-time.After(min):
+				case <-timer.C:
 					select {
 					case <-newCtx.Done():
 					case <-reqCtx.Done():
