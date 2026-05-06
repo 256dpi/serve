@@ -21,7 +21,7 @@ func Compose(chain ...interface{}) http.Handler {
 		// get middleware
 		m, ok := chain[i].(func(http.Handler) http.Handler)
 		if !ok {
-			panic(`compose: expected intermediary chain item to be a "func(http.handler) http.Handler"`)
+			panic(`compose: expected intermediary chain item to be a "func(http.Handler) http.Handler"`)
 		}
 
 		// chain

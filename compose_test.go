@@ -16,7 +16,7 @@ func TestCompose(t *testing.T) {
 		Compose(nil, nil)
 	})
 
-	assert.PanicsWithValue(t, `compose: expected intermediary chain item to be a "func(http.handler) http.Handler"`, func() {
+	assert.PanicsWithValue(t, `compose: expected intermediary chain item to be a "func(http.Handler) http.Handler"`, func() {
 		Compose(nil, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
 	})
 
