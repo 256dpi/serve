@@ -1,7 +1,7 @@
 package serve
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -21,7 +21,7 @@ func TestLocal(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 200, res.StatusCode)
 
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 	assert.NoError(t, err)
 	assert.Equal(t, "OK!", string(data))
 }

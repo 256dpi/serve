@@ -2,7 +2,6 @@ package serve
 
 import (
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -17,7 +16,7 @@ func TestLimit(t *testing.T) {
 	handler := Compose(
 		Limit(10),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			_, err := ioutil.ReadAll(r.Body)
+			_, err := io.ReadAll(r.Body)
 			if err == ErrBodyLimitExceeded {
 				w.WriteHeader(http.StatusRequestEntityTooLarge)
 			}
@@ -42,7 +41,7 @@ func TestLimitBodyExtend(t *testing.T) {
 	LimitBody(nil, r, 16)
 	assert.Equal(t, orig, r.Body.(*BodyLimiter).Original)
 
-	bytes, err := ioutil.ReadAll(r.Body)
+	bytes, err := io.ReadAll(r.Body)
 	assert.NoError(t, err)
 	assert.Equal(t, "Hello World!", string(bytes))
 }
@@ -52,7 +51,7 @@ func TestLimitBodyBeforeReading(t *testing.T) {
 
 	LimitBody(nil, r, 5)
 
-	bytes, err := ioutil.ReadAll(r.Body)
+	bytes, err := io.ReadAll(r.Body)
 	assert.Error(t, err)
 	assert.Equal(t, "", string(bytes))
 	assert.Equal(t, err, ErrBodyLimitExceeded)
@@ -64,7 +63,7 @@ func TestLimitBodyWhileReading(t *testing.T) {
 
 	LimitBody(nil, r, 5)
 
-	bytes, err := ioutil.ReadAll(r.Body)
+	bytes, err := io.ReadAll(r.Body)
 	assert.Error(t, err)
 	assert.Equal(t, "Hello", string(bytes))
 	assert.Equal(t, err, ErrBodyLimitExceeded)
