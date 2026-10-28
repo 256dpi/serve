@@ -48,8 +48,9 @@ func Secure(w http.ResponseWriter, r *http.Request, allowInsecure, noFrontend bo
 		w.Header().Set("Referrer-Policy", "no-referrer-when-downgrade")
 	}
 
-	// set strict transport max age if specified
-	if stsMaxAge > 0 && !allowInsecure {
+	// set strict transport max age if specified and the request is secure,
+	// which Forwarded reports for a proxy when it fakes TLS
+	if stsMaxAge > 0 && r.TLS != nil {
 		w.Header().Set("Strict-Transport-Security", "max-age="+strconv.Itoa(int(stsMaxAge/time.Second)))
 	}
 

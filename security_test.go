@@ -57,6 +57,32 @@ func TestSecurityAllowInsecure(t *testing.T) {
 		"X-Frame-Options":         []string{"DENY"},
 		"X-Xss-Protection":        []string{"0"},
 	}, r.Header())
+
+	r = Record(nil, handler, "GET", "https://example.com", nil, "")
+	assert.Equal(t, http.StatusOK, r.Code)
+	assert.Equal(t, "max-age=604800", r.Header().Get("Strict-Transport-Security"))
+}
+
+func TestSecurityForwarded(t *testing.T) {
+	handler := Compose(
+		Forwarded(GoogleCloud(true)),
+		Security(true, false, 7*24*time.Hour),
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			_, _ = w.Write([]byte("Hello"))
+		}),
+	)
+
+	r := Record(nil, handler, "GET", "http://example.com", map[string]string{
+		"X-Forwarded-Proto": "https",
+	}, "")
+	assert.Equal(t, http.StatusOK, r.Code)
+	assert.Equal(t, "max-age=604800", r.Header().Get("Strict-Transport-Security"))
+
+	r = Record(nil, handler, "GET", "http://example.com", map[string]string{
+		"X-Forwarded-Proto": "http",
+	}, "")
+	assert.Equal(t, http.StatusOK, r.Code)
+	assert.Empty(t, r.Header().Get("Strict-Transport-Security"))
 }
 
 func TestSecurityNoFrontend(t *testing.T) {
