@@ -21,6 +21,10 @@ type ForwardedConfig struct {
 
 // GoogleCloud can be used with Forwarded to setup proper header parsing for
 // traffic from Google Cloud load balancers.
+//
+// Deprecated: Use ParseForwardedConfig with a configuration from the
+// environment, e.g. "use-for,use-proto,for-index=-2,fake-tls", so the app
+// does not assume where it runs.
 func GoogleCloud(fakeTLS bool) ForwardedConfig {
 	return ForwardedConfig{
 		UseFor:   true,
